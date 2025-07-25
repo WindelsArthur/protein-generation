@@ -1,0 +1,54 @@
+experiment:
+  name: "masked_dplm_simple"
+  description: ""
+
+# Model parameters Denoising Transformer
+model:
+  max_seq_length: 300
+  d_model: 512
+  n_heads: 8
+  n_layers: 6
+  dropout: 0.1
+
+# Training parameters
+training:
+  n_samples: 1000      # Number of training samples to use
+  batch_size: 32
+  n_epochs: 500
+  learning_rate: 0.0001
+  seed: 42
+
+# Generation parameters
+generation:
+  seq_length: 100
+  n_samples: 1000       # Number of sequences to generate
+  dt: 0.05               # Time step for inference
+
+# Diffusion process parameters
+diffusion:
+  noise_schedule: "cosine"          # Options: linear, cosine, sqrt
+  forward_process: "simple"
+  inference_process: ""
+
+# Data parameters
+data:
+  input_file: "/home/arthur/projets/protein-generation/data/seq_clean.csv"
+  sequence_column: "sequence"
+  shuffle: true
+
+# Saving parameters
+save:
+  base_dir: "/home/arthur/projets/protein-generation/experiments/models"
+  save_model: true
+  save_losses: true
+  save_config: true
+  save_generated: true
+
+# Display parameters
+display:
+  plot_losses: true
+  show_sample_sequences: 5
+  verbose: true
+
+# Device settings
+device: "cuda"  # Options: cuda, cpu, auto

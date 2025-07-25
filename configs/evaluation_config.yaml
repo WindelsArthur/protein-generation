@@ -1,0 +1,38 @@
+# Model configuration
+models:
+  perplexity: "facebook/esm2_t6_8M_UR50D"
+  folding: "facebook/esmfold_v1"
+
+# Device configuration
+device: "cuda:1"  # or "cpu"
+
+# Output directory for results
+output_dir: "/home/arthur/projets/protein-generation/experiments/metrics/test12"
+
+# Sequence column name in CSV files
+sequence_column: "sequence"
+
+# Name of the training dataset (used as reference)
+training_dataset_name: "training"
+
+# Dataset paths
+datasets:
+  training : '/home/arthur/projets/protein-generation/data/seq_test1.csv'
+  test2 : '/home/arthur/projets/protein-generation/data/seq_test2.csv'
+
+# Random baseline configuration
+random_baseline:
+  generate: true
+  n_samples: 10
+  sequence_length: 100
+  amino_acids: "ACDEFGHIKLMNPQRSTVWY"
+
+# Distribution evaluation parameters
+distribution_parameters:
+  k_neighbors: 5
+  soft_align_k: 3
+  n_projections: 100
+  kde_bandwidth: 0.1
+  kde_n_samples: 1000
+  toppr_alpha: 0.1
+  random_seed: 42
