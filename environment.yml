@@ -154,7 +154,6 @@ dependencies:
       - biotite==0.40.0
       - charset-normalizer==3.4.2
       - einops==0.8.1
-      - fair-esm==2.0.1
       - filelock==3.13.1
       - frozenlist==1.7.0
       - fsspec==2024.6.1
