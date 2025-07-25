@@ -12,7 +12,7 @@ import shutil
 
 warnings.filterwarnings('ignore')
 
-project_root = Path.home() / "projets" / "protein-generation"
+project_root = Path.home() / "protein-generation"
 sys.path.append(str(project_root))
 
 from scripts.evaluation.evaluate import *

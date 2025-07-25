@@ -42,7 +42,7 @@ from transformers import EsmTokenizer, EsmForMaskedLM, EsmForProteinFolding # ty
 
 # External soft alignment
 import sys, pathlib, os
-project_root = pathlib.Path.home() / "projets" / "protein-generation"
+project_root = pathlib.Path.home() / "protein-generation"
 sys.path.append(str(project_root))
 
 from external.protein_embed_softalign.soft_align import soft_align

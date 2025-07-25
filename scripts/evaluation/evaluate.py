@@ -5,7 +5,7 @@ from tqdm import tqdm
 from datetime import datetime
 
 import sys, pathlib, os
-project_root = pathlib.Path.home() / "projets" / "protein-generation"
+project_root = pathlib.Path.home() / "protein-generation"
 sys.path.append(str(project_root))
 
 from transformers import EsmTokenizer, EsmForMaskedLM, EsmForProteinFolding  # type: ignore

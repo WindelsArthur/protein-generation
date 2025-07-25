@@ -14,7 +14,7 @@ warnings.filterwarnings('ignore')
 from transformers import EsmTokenizer, EsmForMaskedLM # type: ignore
 
 import sys, pathlib, os
-project_root = pathlib.Path.home() / "projets" / "protein-generation"
+project_root = pathlib.Path.home() / "protein-generation"
 sys.path.append(str(project_root))
 from scripts.utils import *
 from scripts.models.noised_dplm.training.training_classic import *

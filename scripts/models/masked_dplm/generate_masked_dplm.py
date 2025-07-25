@@ -9,7 +9,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 import sys, pathlib
-project_root = pathlib.Path.home() / "projets" / "protein-generation"
+project_root = pathlib.Path.home() / "protein-generation"
 sys.path.append(str(project_root))
 from scripts.utils import *
 from scripts.models.masked_dplm.classes.model import DenoisingTransformer

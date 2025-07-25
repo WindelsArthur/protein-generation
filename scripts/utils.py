@@ -13,7 +13,7 @@ from datetime import datetime
 import pickle
 import shutil
 
-project_root = pathlib.Path.home() / "projects" / "protein-generation"
+project_root = pathlib.Path.home() / "protein-generation"
 sys.path.append(str(project_root))
 
 
