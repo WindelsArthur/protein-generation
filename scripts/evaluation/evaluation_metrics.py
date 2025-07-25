@@ -46,7 +46,6 @@ project_root = pathlib.Path.home() / "projets" / "protein-generation"
 sys.path.append(str(project_root))
 
 from external.protein_embed_softalign.soft_align import soft_align
-from external.ProteinMPNN.protein_mpnn_utils import ProteinMPNN
 
 def load_perplexity_model(
     ppl_model_name: str, 
