@@ -5,8 +5,8 @@ class ProteinVocabulary:
         self.ALPHABET = "ACDEFGHIKLMNPQRSTVWY"
         self.MASK_TOKEN = 20
         self.PAD_TOKEN = 21
-        self.VOCAB_SIZE = 22  # 20 AA + 2 tokens spéciaux
-        
+        self.VOCAB_SIZE = 22  # 20 AA + 2 special tokens
+
         self.vocab_to_id = {aa: i for i, aa in enumerate(self.ALPHABET)}
         self.id_to_vocab = {i: aa for i, aa in enumerate(self.ALPHABET)}
         self.id_to_vocab[self.PAD_TOKEN] = '<PAD>'

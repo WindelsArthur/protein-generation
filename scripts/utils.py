@@ -13,7 +13,6 @@ from datetime import datetime
 import pickle
 import shutil
 
-# Project configuration
 project_root = pathlib.Path.home() / "projects" / "protein-generation"
 sys.path.append(str(project_root))
 
@@ -25,7 +24,6 @@ def load_experiment_config(config_path="config.yaml"):
     return config
 
 
-
 def setup_experiment_directory(config):
     """Create the experiment directory and generate a name if needed."""
     if config['experiment']['name'] is None:
@@ -35,9 +33,7 @@ def setup_experiment_directory(config):
     exp_dir = os.path.join(config['save']['base_dir'], config['experiment']['name'])
     os.makedirs(exp_dir, exist_ok=True)
     config['exp_dir'] = exp_dir
-    
     return config
-
 
 
 def save_experiment_config(config, exp_dir):
@@ -48,34 +44,36 @@ def save_experiment_config(config, exp_dir):
     return config_path
 
 
-
 def save_results(config, model, losses, generated_sequences):
     """Save all experiment results."""
     exp_dir = config['exp_dir']
     
-    # 1. Save model weights
+    # Save model weights
     if config['save']['save_model']:
         model_path = os.path.join(exp_dir, 'model.pth')
         torch.save(model.state_dict(), model_path)
         if config['display']['verbose']:
             print(f"Model saved: {model_path}")
     
-    # 2. Save losses
+    # Save losses
     if config['save']['save_losses']:
         losses_path = os.path.join(exp_dir, 'losses.pkl')
         with open(losses_path, 'wb') as f:
             pickle.dump(losses, f)
+        
         # Also save CSV for easier analysis
         losses_csv_path = os.path.join(exp_dir, 'losses.csv')
         pd.DataFrame({'epoch': range(len(losses)), 'loss': losses}).to_csv(losses_csv_path, index=False)
+        
         if config['display']['verbose']:
             print(f"Losses saved: {losses_path}")
     
-    # 3. Save generated sequences
+    # Save generated sequences
     if config['save']['save_generated']:
         generated_path = os.path.join(exp_dir, 'generated_sequences.csv')
         df_generated = pd.DataFrame({config['data']['sequence_column']: generated_sequences})
         df_generated.to_csv(generated_path, index=False)
+        
         if config['display']['verbose']:
             print(f"Generated sequences saved: {generated_path}")
 
@@ -102,7 +100,6 @@ def plot_and_save_losses(config, losses):
 def display_sample_sequences(config, generated_sequences):
     """Print a few example generated sequences."""
     n_show = min(config['display']['show_sample_sequences'], len(generated_sequences))
-    
     if n_show > 0:
         print(f"\nDisplaying {n_show} generated sequences:")
         for i in range(n_show):

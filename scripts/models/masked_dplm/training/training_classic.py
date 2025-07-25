@@ -6,50 +6,44 @@ from tqdm import tqdm
 def forward_diffusion(x, t, noise_schedule, vocab):
     B, L = x.shape
     
-    # Masque pour identifier les tokens qui peuvent être masqués
+    # Mask for tokens that can be masked
     maskable = (x != vocab.PAD_TOKEN)
     
-    # Probabilité de masquage pour chaque séquence
+    # Masking probability for each sequence
     mask_probs = torch.stack([
         torch.tensor(noise_schedule.get_noise_level(float(ti)), device=x.device) for ti in t
     ]).view(B, 1).expand(B, L)
     
-    # Masquage aléatoire seulement sur les positions maskables
+    # Random masking only on maskable positions
     mask = (torch.rand(B, L, device=x.device) < mask_probs) & maskable
     
-    # Appliquer les masques
     xt = x.clone()
     xt[mask] = vocab.MASK_TOKEN
     
     return xt, mask
 
 def compute_loss(model, x0, noise_schedule, vocab):
-    """Calcule la loss pour un batch."""
+    """Compute loss for a batch"""
     B, L = x0.shape
     
-    # Timesteps aléatoires
     t = torch.rand(B, device=x0.device)
-    
-    # Forward diffusion
     xt, mask = forward_diffusion(x0, t, noise_schedule, vocab)
     
-    # Prédictions du modèle en ne prenant en contexte que les positions non PAD (faut dans le forward du modele)
+    # Model predictions (model forward should handle non-PAD positions)
     logits = model(xt, t.unsqueeze(1))
     
     if mask.sum() == 0:
         return torch.tensor(0.0, device=x0.device, requires_grad=True), 0.0
     
-    # Loss seulement sur les positions masquées
+    # Loss only on masked positions
     loss = F.cross_entropy(logits[mask], x0[mask], reduction='mean')
     mask_ratio = mask.sum().item() / mask.numel()
     
     return loss, mask_ratio
 
-
 def train_step(model, batch, optimizer, noise_schedule, vocab):
-    """Un pas d'entraînement."""
+    """Single training step"""
     model.train()
-    
     loss, mask_ratio = compute_loss(model, batch, noise_schedule, vocab)
     
     optimizer.zero_grad()
@@ -58,9 +52,8 @@ def train_step(model, batch, optimizer, noise_schedule, vocab):
     
     return loss.item(), mask_ratio
 
-
 def train_model(model, dataloader, optimizer, noise_schedule, n_epochs, vocab):
-    """Boucle d'entraînement complète."""
+    """Complete training loop"""
     losses = []
     
     for epoch in tqdm(range(n_epochs), desc="Training"):
@@ -78,4 +71,3 @@ def train_model(model, dataloader, optimizer, noise_schedule, n_epochs, vocab):
             print(f"Epoch {epoch}: Loss = {avg_loss:.4f}")
     
     return losses
-

@@ -5,45 +5,42 @@ import hashlib
 import numpy as np
 from tqdm import tqdm
 
-
 class ESMCache:
-    """Simple cache pour les prédictions ESM"""
+    """Simple cache for ESM predictions"""
     def __init__(self, max_size=1000):
         self.cache = {}
         self.max_size = max_size
     
     def _get_key(self, sequence_str):
-        """Crée une clé de cache basée sur la séquence"""
+        """Create cache key based on sequence"""
         return hashlib.md5(sequence_str.encode()).hexdigest()
     
     def get(self, sequence_str):
-        """Récupère les prédictions du cache"""
+        """Retrieve predictions from cache"""
         key = self._get_key(sequence_str)
         return self.cache.get(key, None)
     
     def set(self, sequence_str, probs):
-        """Stocke les prédictions dans le cache"""
+        """Store predictions in cache"""
         if len(self.cache) >= self.max_size:
-            # Simple FIFO: supprime le premier élément
+            # Simple FIFO: remove first element
             first_key = next(iter(self.cache))
             del self.cache[first_key]
         
         key = self._get_key(sequence_str)
         self.cache[key] = probs.clone()
 
-# Cache global (simple mais efficace)
+# Global cache
 esm_cache = ESMCache(max_size=2000)
-
-
 
 def get_esm_predictions_batch(sequences, ppl_model, ppl_tokenizer, device, cache=None):
     """
-    Obtient les prédictions ESM pour un batch de séquences avec cache
+    Get ESM predictions for a batch of sequences with caching
     """
     if cache is None:
         cache = esm_cache
     
-    # Séparer les séquences cachées des non-cachées
+    # Separate cached and non-cached sequences
     cached_results = {}
     sequences_to_process = []
     indices_to_process = []
@@ -56,10 +53,9 @@ def get_esm_predictions_batch(sequences, ppl_model, ppl_tokenizer, device, cache
             sequences_to_process.append(seq_str)
             indices_to_process.append(i)
     
-    # Traiter les séquences non-cachées en batch
+    # Process non-cached sequences in batch
     batch_results = {}
     if sequences_to_process:
-        # Tokenize toutes les séquences en une fois
         inputs = ppl_tokenizer(sequences_to_process, return_tensors="pt", padding=True)
         inputs = {k: v.to(device) for k, v in inputs.items()}
         
@@ -68,31 +64,31 @@ def get_esm_predictions_batch(sequences, ppl_model, ppl_tokenizer, device, cache
             logits = outputs.logits
             probs = torch.softmax(logits, dim=-1)
         
-        # Stocker les résultats et les mettre en cache
+        # Store results and cache them
         for i, (seq_idx, seq_str) in enumerate(zip(indices_to_process, sequences_to_process)):
-            seq_probs = probs[i]  # [seq_len, vocab_size]
+            seq_probs = probs[i]
             batch_results[seq_idx] = seq_probs
             cache.set(seq_str, seq_probs.cpu())
     
-    # Combiner résultats cachés et nouveaux
+    # Combine cached and new results
     all_results = {**cached_results, **batch_results}
     return all_results
-
 
 def forward_diffusion_perp_naive(x, t, noise_schedule, vocab, device, ppl_model, ppl_tokenizer):
     B, L = x.shape
     
-    # Calculer tous les masques de mutation
+    # Calculate all mutation masks
     mutate_probs = torch.tensor([
         noise_schedule.get_noise_level(float(t_i)) for t_i in t
     ], device=device).unsqueeze(1)
     
     random_vals = torch.rand(B, L, device=device)
     mutate = random_vals < mutate_probs
+    
     pad_mask = (x == vocab.PAD_TOKEN)
     mutate = mutate & (~pad_mask)
     
-    # Identifier les séquences qui ont des mutations
+    # Identify sequences with mutations
     sequences_with_mutations = []
     sequence_strings = []
     
@@ -102,7 +98,7 @@ def forward_diffusion_perp_naive(x, t, noise_schedule, vocab, device, ppl_model,
             sequences_with_mutations.append(batch_idx)
             sequence_strings.append(seq_str)
     
-    # Traiter toutes les séquences avec mutations en une fois
+    # Process all sequences with mutations at once
     xt = x.clone()
     
     if sequence_strings:
@@ -117,7 +113,7 @@ def forward_diffusion_perp_naive(x, t, noise_schedule, vocab, device, ppl_model,
             for pos in positions_to_modify:
                 esm_pos = pos + 1
                 
-                # Trouver l'AA avec la plus faible probabilité
+                # Find AA with lowest probability
                 aa_probs = {
                     aa: probs[esm_pos, ppl_tokenizer.convert_tokens_to_ids(aa)].item()
                     for aa in vocab.ALPHABET
@@ -128,25 +124,20 @@ def forward_diffusion_perp_naive(x, t, noise_schedule, vocab, device, ppl_model,
     
     return xt, mutate
 
-
-# Fonction de training modifiée pour utiliser la version optimisée
 def compute_loss(model, x0, noise_schedule, vocab, ppl_model, ppl_tokenizer):
-    """Version modifiée de compute_loss utilisant ESM diffusion"""
+    """Modified compute_loss using ESM diffusion"""
     B, L = x0.shape
     device = x0.device
     
-    # Random timesteps
     t = torch.rand(B, device=device)
     
-    # Forward diffusion avec ESM (version optimisée)
+    # Forward diffusion with ESM (optimized version)
     xt, mutate_mask = forward_diffusion_perp_naive(
         x0, t, noise_schedule, vocab, device, ppl_model, ppl_tokenizer
     )
     
-    # Model predictions
     logits = model(xt, t.unsqueeze(1))
     
-    # Calculate loss only on positions that were mutated
     if mutate_mask.sum() == 0:
         return torch.tensor(0.0, device=device, requires_grad=True), 0.0
     
@@ -157,7 +148,7 @@ def compute_loss(model, x0, noise_schedule, vocab, ppl_model, ppl_tokenizer):
     return loss, mutation_ratio
 
 def train_step(model, batch, optimizer, noise_schedule, vocab, ppl_model, ppl_tokenizer):
-    """One training step."""
+    """Single training step"""
     model.train()
     
     loss, mutation_ratio = compute_loss(model, batch, noise_schedule, vocab, ppl_model, ppl_tokenizer)
@@ -168,9 +159,8 @@ def train_step(model, batch, optimizer, noise_schedule, vocab, ppl_model, ppl_to
     
     return loss.item(), mutation_ratio
 
-
 def train_model(model, dataloader, optimizer, noise_schedule, n_epochs, vocab, ppl_model, ppl_tokenizer):
-    """Complete training loop."""
+    """Complete training loop"""
     losses = []
     
     for epoch in tqdm(range(n_epochs), desc="Training"):
