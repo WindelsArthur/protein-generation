@@ -1,0 +1,12 @@
+./idea
+./__pycache__/
+
+# folders
+data/
+
+# files
+.DS_Store
+.ipynb_checkpoints/*
+*.pyc
+*.txt
+*.pickle
