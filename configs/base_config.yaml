@@ -32,13 +32,13 @@ diffusion:
 
 # Data parameters
 data:
-  input_file: "/home/arthur/projets/protein-generation/data/seq_clean.csv"
+  input_file: "/home/arthur/protein-generation/data/seq_clean.csv"
   sequence_column: "sequence"
   shuffle: true
 
 # Saving parameters
 save:
-  base_dir: "/home/arthur/projets/protein-generation/experiments/models"
+  base_dir: "/home/arthur/protein-generation/experiments/models"
   save_model: true
   save_losses: true
   save_config: true

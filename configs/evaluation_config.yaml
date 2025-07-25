@@ -7,7 +7,7 @@ models:
 device: "cuda:1"  # or "cpu"
 
 # Output directory for results
-output_dir: "/home/arthur/projets/protein-generation/experiments/metrics/testdplm1"
+output_dir: "/home/arthur/protein-generation/experiments/metrics/testdplm1"
 
 # Sequence column name in CSV files
 sequence_column: "sequence"
@@ -17,11 +17,11 @@ training_dataset_name: "training"
 
 # Dataset paths
 datasets:
-  training : '/home/arthur/projets/protein-generation/experiments/models/noised_dplm_simple/training_sequences.csv'
-  noised_pos_once : '/home/arthur/projets/protein-generation/experiments/models/noised_dplm_simple/generated_sequences_to_mutate_mask.csv'
-  noised : "/home/arthur/projets/protein-generation/experiments/models/noised_dplm_simple/generated_sequences.csv"
-  noised_perp : "/home/arthur/projets/protein-generation/experiments/models/noised_dplm_perp_naive/generated_sequences_perpnaive.csv"
-  masked : "/home/arthur/projets/protein-generation/experiments/models/masked_dplm_simple/generated_sequences.csv"
+  training : '/home/arthur/protein-generation/experiments/models/noised_dplm_simple/training_sequences.csv'
+  noised_pos_once : '/home/arthur/protein-generation/experiments/models/noised_dplm_simple/generated_sequences_to_mutate_mask.csv'
+  noised : "/home/arthur/protein-generation/experiments/models/noised_dplm_simple/generated_sequences.csv"
+  noised_perp : "/home/arthur/protein-generation/experiments/models/noised_dplm_perp_naive/generated_sequences_perpnaive.csv"
+  masked : "/home/arthur/protein-generation/experiments/models/masked_dplm_simple/generated_sequences.csv"
 
 
 # Random baseline configuration
