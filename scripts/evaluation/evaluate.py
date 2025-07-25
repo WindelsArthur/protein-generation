@@ -96,11 +96,10 @@ def evaluate_distributions(
     }
 
     # 4. TopPR score
-    fidelity, diversity, f1 = 0, 0, 0
-    #fidelity, diversity, f1 = calculate_toppr_score(
-    #    generated_sequences, training_sequences,
-    #    ppl_model, ppl_tokenizer, device, toppr_alpha
-    #)
+    fidelity, diversity, f1 = calculate_toppr_score(
+        generated_sequences, training_sequences,
+        ppl_model, ppl_tokenizer, device, toppr_alpha
+    )
     results["toppr"] = {
         "fidelity": float(fidelity),
         "diversity": float(diversity),
@@ -137,15 +136,14 @@ def evaluate_distributions(
     }
 
     # 8 & 9. Soft alignment distances
-    s_f_mean, s_f_paths, s_d_mean, s_d_paths = 0, [0 for k in range(100)], 0, [0 for k in range(100)]
-    #s_f_mean, s_f_paths = calculate_min_soft_alignment_distance(
-    #    generated_sequences, training_sequences,
-    #    ppl_model, ppl_tokenizer, device, soft_align_k
-    #)
-    #s_d_mean, s_d_paths = calculate_min_soft_alignment_distance(
-    #    training_sequences, generated_sequences,
-    #    ppl_model, ppl_tokenizer, device, soft_align_k
-    #)
+    s_f_mean, s_f_paths = calculate_min_soft_alignment_distance(
+        generated_sequences, training_sequences,
+        ppl_model, ppl_tokenizer, device, soft_align_k
+    )
+    s_d_mean, s_d_paths = calculate_min_soft_alignment_distance(
+        training_sequences, generated_sequences,
+        ppl_model, ppl_tokenizer, device, soft_align_k
+    )
     results["soft_alignment_fidelity"] = {
         "mean_distance": float(s_f_mean),
         "individual_paths": s_f_paths
