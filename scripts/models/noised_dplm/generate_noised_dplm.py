@@ -23,7 +23,7 @@ print(f"[INFO] Using device: {device}")
 
 
 # Load checkpoint
-checkpoint_path = "/home/arthur/projets/protein-generation/experiments/models/noised_dplm_simple/checkpoint_latest.pt"
+checkpoint_path = "/home/arthur/projets/protein-generation/experiments/models/noised_dplm_perp_naive/checkpoint_latest.pt"
 print(f"[INFO] Loading checkpoint from: {checkpoint_path}")
 checkpoint = torch.load(checkpoint_path, map_location=device)
 
